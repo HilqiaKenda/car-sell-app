@@ -3,11 +3,10 @@ from rest_framework.routers import DefaultRouter, SimpleRouter
 from . import views
 
 router = DefaultRouter()
-router.register('cars', views.Car_list, basename='cars')
+router.register('cars', views.CarList, basename='cars')
 
 urlpatterns = [
-    path('cars/', views.Car_list.as_view()),
-    path('features/', views.CarFeature_list.as_view()),
-    path('customers/', views.Customer_list.as_view())
-    # path('', include(router.urls))
+    path('cars/<int:pk>', views.CarList.as_view()),
+    path('features/', views.CarFeatureList),
+    path('customers/', views.CustomerList),
 ]
