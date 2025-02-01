@@ -2,6 +2,35 @@ from django.db import models
 
 
 # Create your models here.
+
+
+class CarFeature(models.Model):
+    TRACTION_FWD = "F"
+    TRACTION_RWD = "R"
+    TRACTION_4WD = "4"
+    TRACTION_AWD = "A"
+
+    STEERING_LEFT = "L"
+    STEERING_RIGHT = "R"
+
+    TRACTION_CHOICES = [
+        (TRACTION_FWD, "FWD"),
+        (TRACTION_RWD, "RWD"),
+        (TRACTION_4WD, "4WD"),
+        (TRACTION_AWD, "AWD"),
+    ]
+
+    STEERING_CHOICES = [(STEERING_LEFT, "Left"), (STEERING_RIGHT, "Right")]
+
+    car_body = models.CharField(max_length=50)
+    hp_power = models.CharField(max_length=50)
+    door = models.CharField(max_length=10)
+    traction = models.CharField(max_length=5, choices=TRACTION_CHOICES)
+    steering = models.CharField(
+        max_length=5, choices=STEERING_CHOICES, default=STEERING_LEFT
+    )
+
+
 class Car(models.Model):
     CONDITION_USED = "U"
     CONDITION_BRAND_NEW = "N"
@@ -35,7 +64,7 @@ class Car(models.Model):
     make = models.CharField(max_length=255)
     model = models.CharField(max_length=50)
     year = models.DateField()
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    price = models.DecimalField(max_digits=20, decimal_places=2)
     color = models.CharField(max_length=50)
     condition = models.CharField(
         max_length=50, choices=CONDITION_CHOICES, default=CONDITION_USED
@@ -48,42 +77,22 @@ class Car(models.Model):
     )
     description = models.TextField()
     mileage = models.CharField(max_length=255)
+    car_feature = models.ForeignKey(
+        CarFeature, on_delete=models.CASCADE, default=None, related_name="feature"
+    )
 
 
-class customer(models.Model):
+class Customer(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=50)
     phone_number = models.CharField(max_length=15)
     gender = models.CharField(max_length=20, null=True)
     birth_date = models.DateField(null=True)
+    car = models.ManyToManyField(Car)
 
-
-class CarFeature(models.Model):
-    TRACTION_FWD = "F"
-    TRACTION_RWD = "R"
-    TRACTION_4WD = "4"
-    TRACTION_AWD = "A"
-
-    STEERING_LEFT = "L"
-    STEERING_RIGHT = "R"
-
-    TRACTION_CHOICES = [
-        (TRACTION_FWD, "FWD"),
-        (TRACTION_RWD, "RWD"),
-        (TRACTION_4WD, "4WD"),
-        (TRACTION_AWD, "AWD"),
-    ]
-
-    STEERING_CHOICES = []
-
-    car_body = models.CharField(max_length=50)
-    hp_power = models.CharField(max_length=50)
-    door = models.CharField(max_length=10)
-    traction = models.CharField(max_length=5, choices=TRACTION_CHOICES)
-    steering = models.CharField(
-        max_length=5, choices=STEERING_CHOICES, default=STEERING_RIGHT
-    )
+    def __str__(self) -> str:
+        return f"{self.first_name} {self.last_name}"
 
 
 class Review(models.Model):
@@ -91,3 +100,20 @@ class Review(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     date = models.DateField(auto_now_add=True)
+
+
+class Order(models.Model):
+    payment_pending = "p"
+    payment_complete = "C"
+    payment_failed = "F"
+    PAYMENT_STATUS_CHOICES = [
+        (payment_pending, "pending"),
+        (payment_complete, "complete"),
+        (payment_failed, "failed"),
+    ]
+
+    placed_at = models.DateTimeField(auto_now_add=True)
+    payment_status = models.CharField(
+        max_length=1, choices=PAYMENT_STATUS_CHOICES, default=payment_pending
+    )
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)

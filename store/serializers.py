@@ -1,33 +1,41 @@
 from rest_framework import serializers
-from store.models import Car, CarFeature, Review, customer
+from store.models import Car, CarFeature, Review, Customer
 
 
 class CarFeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarFeature
-        fields = ["id", "hp_power", "doors", "steering", "traction"]
+        fields = ["id", "car_body", "door", "hp_power", "steering", "traction"]
+
+
+# class CarSpecsSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = CarFeature()
+#         fields=[]
 
 
 class CarSerializer(serializers.ModelSerializer):
-    specs = CarFeatureSerializer(read_only=True, many=True)
+
+    car_feature = CarFeatureSerializer(read_only=True)
 
     class Meta:
         model = Car
         fields = [
             "id",
+            "make",
             "model",
             "condition",
             "price",
             "transmission",
             "fuel_type",
-            "specs",
+            "car_feature",
         ]
 
 
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = customer
-        fields = ["id", "first_name", "email", "phone"]
+        model = Customer
+        fields = ["id", "first_name", "email", "phone_number"]
 
 
 class ReviewSerializer(serializers.ModelSerializer):
